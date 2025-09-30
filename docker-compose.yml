@@ -11,8 +11,8 @@ services:
 
   backend:
     image: insparation06/todo_backend
-    ports:
-      - "8000:8000"
+    volumes:
+      - static:/backend_static
     depends_on:
       - db
     env_file:
@@ -24,6 +24,14 @@ services:
       - backend
     env_file:
       - .env
+  nginx:
+    image: insparation06/todo_nginx
+    env_file: .env
+    ports:
+      - 8000:80
+    volumes:
+      - static:/staticfiles
 
 volumes:
   pgdata:
+  static:
