@@ -4,13 +4,18 @@ from .models import Category, Task
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    """Серилайзер категорий."""
+
     class Meta:
         model = Category
         fields = ('id', 'title',)
 
 
 class TaskSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(many=True)
+    """Серилайзер задач."""
+
+    category = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Category.objects.all())
 
     class Meta:
         model = Task

@@ -6,6 +6,7 @@ from .serializers import CategorySerializer, TaskSerializer
 
 class TaskViewSet(viewsets.ModelViewSet):
     """Вьюсет для задач."""
+
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
 
@@ -18,5 +19,6 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 class CategoryViewSet(viewsets.ModelViewSet):
     """Вьюсет для категорий."""
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
