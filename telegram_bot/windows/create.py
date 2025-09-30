@@ -6,7 +6,6 @@ from aiogram_dialog.widgets.text import Const, Format
 from handlers.create import (category_chosen, get_categories,
                              handle_date_selection, handle_task_description,
                              handle_task_title, save_task_handler)
-from states.create import CreateSG
 from states.main import MainSG
 
 # Окно ввода названия задачи
@@ -15,7 +14,7 @@ create_window = Window(
     TextInput(id="task_title", on_success=handle_task_title),
     Row(Button(Const("Отмена"), id="cancel_task",
                on_click=lambda c, b, m: m.switch_to(MainSG.main))),
-    state=CreateSG.enter_title,
+    state=MainSG.enter_title,
 )
 
 # Окно ввода описания задачи
@@ -25,7 +24,7 @@ description_window = Window(
               on_success=handle_task_description),
     Row(Button(Const("Отмена"), id="cancel_task",
                on_click=lambda c, b, m: m.switch_to(MainSG.main))),
-    state=CreateSG.enter_description,
+    state=MainSG.enter_description,
 )
 
 # Окно выбора категории
@@ -38,7 +37,7 @@ select_category_window = Window(
         on_click=category_chosen,
         id="cat_select"
     ),
-    state=CreateSG.select_category,
+    state=MainSG.select_category,
     getter=get_categories
 )
 
@@ -47,8 +46,8 @@ choose_date_window = Window(
     Const("Выберите дату выполнения задачи:"),
     Calendar(id="task_deadline", on_click=handle_date_selection),
     Row(Button(Const("Продолжить"), id="continue",
-               on_click=lambda c, b, m: m.switch_to(CreateSG.create))),
-    state=CreateSG.choose_date
+               on_click=lambda c, b, m: m.switch_to(MainSG.create))),
+    state=MainSG.choose_date
 )
 
 # Окно сохранения задачи
@@ -58,5 +57,5 @@ finish_window = Window(
                on_click=save_task_handler)),
     Row(Button(Const("Отмена"), id="cancel_task",
                on_click=lambda c, b, m: m.switch_to(MainSG.main))),
-    state=CreateSG.create,
+    state=MainSG.create,
 )
