@@ -1,6 +1,6 @@
-import aiohttp
 import asyncio
 
+import aiohttp
 from aiogram import Bot, Dispatcher
 from aiogram.filters.command import Command
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -52,17 +52,17 @@ async def process_redis_messages(bot: Bot, redis_client: Redis):
         keys = await redis_client.keys(":1:reminder_*")
         for key in keys:
             raw_value = await redis_client.get(key)
-            parts = raw_value.split(",", 1)
-            task_id = parts[0].strip()
+            parts = key.split("_")[2:]
+            task_id = parts[0]
+            user_id = int(raw_value.strip('"'))
             async with aiohttp.ClientSession() as session:
                 tasks = await fetch_tasks(session)
             task = next(
                 (item for item in tasks if item['id'] == task_id), None)
             if task:
                 task_title = task.get('title', 'Без названия')
-                await bot.send_message(
-                    int(task['telegram_user_id']),
-                    f"Пора выполнить задачу: {task_title}")
+                await bot.send_message(user_id,
+                                       f"Пора выполнить задачу: {task_title}")
             await redis_client.delete(key)
         await asyncio.sleep(5)
 
