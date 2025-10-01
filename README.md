@@ -66,18 +66,74 @@ todo_list/
     ├── Dockerfile             # Докерфайл с инструкцией
     |
     ├── config/                # Конфиги бота
+    |   ├── __init__.py        # Файл инициализации пакета
     |   └── settings.py        # Настройки конфигурации
     |
     ├── handlers/              # Обработчики команд и сообщений
+    |   ├── __init__.py        # Файл инициализации пакета
     |   ├── create.py          # Обработчик создания задач
     |   ├── main.py            # Обработчик комманды start
+    |   ├── update.py          # Обработчик редактирования задач
     |   └── view.py            # Обработчик просмотра задач
     |
     ├── states/                # Менеджмент состояний FSM
-    |   ├── create.py          # Состояния создания задач
-    |   ├── main.py            # Главное меню
-    |   └── view.py            # Состояния просмотра задач
+    |   ├── __init__.py        # Файл инициализации пакета
+    |   └── main.py            # Меню состояний
     |
-    └── windows/               # Окна и UI элементов бота
-        └── main.py            # Главное окно состояний
+    └── windows/               # Окна и UI элементы бота
+        ├── __init__.py        # Файл инициализации пакета
+        ├── create.py          # Окна создания задач
+        ├── main.py            # Окно главного меню
+        ├── update.py          # Окна для редактирования задач
+        └── view.py            # Окна для просмотра задач
 ```
+## Инструкция по запуску:
+Для запуска проекта, необходим установленный Docker.
+1. Клонируйте проект с GitHub:
+```
+https://github.com/sijey06/todo_list.git
+```
+2. Перейдите в директорию с проектом:
+```
+cd todo_list
+```
+3. Создайте файл .env на основе примера:
+```
+cp .env.example .env
+```
+4. Заполните .env по шаблону:
+```
+# django
+SECRET_KEY="secret-key"
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1
+CSRF_TRUSTED=http://127.0.0.1:8000
+CELERY_BROKER_URL=redis://redis:6379/0
+
+# postgres
+POSTGRES_DB=my_db
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password
+DB_HOST=localhost
+DB_PORT=5432
+
+# telegram_bot
+TELEGRAM_TOKEN=123456789
+API_URL="http://127.0.0.1:8000/api/v1"
+```
+5. Запустите приложение через Docker Compose:
+```
+docker compose up -d
+```
+Команда запустит все сервисы (бэкэнд, бот, база данных и другие компоненты) в фоновом режиме (-d), используя Docker-контейнеры.
+6. Выполните миграции:
+```
+docker compose exec backend python manage.py migrate
+```
+7. После успешного запуска проверьте доступность бота через Telegram.
+Откройте чат с ботом и отправьте команду /start.
+## Автор проекта:
+## Автор:
+### Игорь Журавлев
+Ссылка на GitHub:
+https://github.com/sijey06

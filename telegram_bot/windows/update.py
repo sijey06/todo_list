@@ -2,7 +2,8 @@ from aiogram_dialog import Window
 from aiogram_dialog.widgets.kbd import Button, Column, Row, Select
 from aiogram_dialog.widgets.text import Const, Format
 
-from handlers.update import edit_task_getter, get_edit_list_data, task_selected
+from handlers.update import (delete_task_handler, edit_task_getter,
+                             get_edit_list_data, task_selected)
 from states.main import MainSG
 
 # Окно редактирования списка задач
@@ -37,6 +38,8 @@ edit_task_window = Window(
                on_click=lambda c, b, m: m.switch_to(MainSG.enter_description)),
         Button(Const("📅 Изменить срок выполнения"), id="edit_date",
                on_click=lambda c, b, m: m.switch_to(MainSG.choose_date)),
+        Button(Const("❌ Удалить задачу"), id="delete_task",
+               on_click=delete_task_handler),
     ),
     Row(
         Button(Const("↩️ Вернуться в список"), id="back",
