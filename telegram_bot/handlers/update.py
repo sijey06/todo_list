@@ -13,7 +13,7 @@ from states.main import MainSG
 async def update_task(session: aiohttp.ClientSession,
                       task_id, **fields_to_update):
     """Обновляет задачу с указанным ID через API."""
-    patch_url = f"{API_URL}/tasks/{task_id}"
+    patch_url = f"{API_URL}/tasks/{task_id}/"
     async with session.patch(patch_url, json=fields_to_update) as response:
         if response.status == 200:
             return True
@@ -23,7 +23,7 @@ async def update_task(session: aiohttp.ClientSession,
 
 async def delete_task(session: aiohttp.ClientSession, task_id):
     """Удаление задачи с заданым ID через API."""
-    async with session.delete(f"{API_URL}/tasks/{task_id}") as response:
+    async with session.delete(f"{API_URL}/tasks/{task_id}/") as response:
         return response.status == 200
 
 
@@ -151,24 +151,9 @@ async def delete_task_handler(callback_query: CallbackQuery, button: Any,
     task_id = manager.current_context().dialog_data.get("task_id")
     if task_id:
         async with aiohttp.ClientSession() as session:
-            result = await delete_task(session, task_id)
-            if result:
-                if callback_query.message:
-                    await callback_query.message.answer(
-                        "Задача успешно удалена.")
-                else:
-                    await callback_query.answer("Задача успешно удалена.")
-                await manager.switch_to(MainSG.edit_list)
-            else:
-                if callback_query.message:
-                    await callback_query.message.answer(
-                        "Ошибка при удалении задачи.")
-                else:
-                    await callback_query.answer("Ошибка при удалении задачи.")
+            await delete_task(session, task_id)
+            await callback_query.message.answer("Задача успешно удалена.")
+            await manager.switch_to(MainSG.edit_list)
     else:
-        if callback_query.message:
-            await callback_query.message.answer(
-                "Не удалось определить задачу для удаления.")
-        else:
-            await callback_query.answer(
-                "Не удалось определить задачу для удаления.")
+        await callback_query.answer(
+            "Не удалось определить задачу для удаления.")
