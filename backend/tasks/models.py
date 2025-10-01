@@ -65,6 +65,8 @@ class Task(models.Model):
         "Срок выполнения",
         help_text="Дата и время завершения задачи",
     )
+    notification_sent = models.BooleanField(
+        default=False, verbose_name="Отправлено уведомление?")
 
     class Meta:
         ordering = ('created_at',)
