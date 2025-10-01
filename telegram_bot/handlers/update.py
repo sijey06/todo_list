@@ -120,29 +120,12 @@ async def choose_date_handler(callback_query: CallbackQuery,
     task_id = manager.current_context().dialog_data.get("task_id")
     if task_id:
         async with aiohttp.ClientSession() as session:
-            updated_task = await update_task(session, task_id,
-                                             due_date=formatted_due_date)
-            if updated_task:
-                if callback_query.message:
-                    await callback_query.message.answer(
-                        f"Срок выполнения успешно изменён {selected_date}")
-                else:
-                    await callback_query.answer(
-                        "Невозможно отправить сообщение.")
-                await manager.switch_to(MainSG.edit_task)
-            else:
-                if callback_query.message:
-                    await callback_query.message.answer(
-                        "Ошибка при изменении срока выполнения задачи.")
-                else:
-                    await callback_query.answer(
-                        "Невозможно отправить сообщение.")
+            await update_task(session, task_id, due_date=formatted_due_date)
+            await callback_query.message.answer("Дата успешно обновлена.")
+            await manager.switch_to(MainSG.edit_list)
     else:
-        if callback_query.message:
-            await callback_query.message.answer(
-                "Не удалось определить задачу для редактирования.")
-        else:
-            await callback_query.answer("Невозможно отправить сообщение.")
+        await callback_query.answer(
+            "Не удалось определить задачу для редактирования.")
 
 
 async def delete_task_handler(callback_query: CallbackQuery, button: Any,
