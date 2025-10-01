@@ -63,6 +63,7 @@ async def process_redis_messages(bot: Bot, redis_client: Redis):
                 task_title = task.get('title', 'Без названия')
                 await bot.send_message(user_id,
                                        f"Пора выполнить задачу: {task_title}")
+            await bot.send_message(user_id, "Не выполнено")
             await redis_client.delete(key)
         await asyncio.sleep(5)
 

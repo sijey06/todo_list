@@ -3,7 +3,7 @@ name: Main ToDo List workflow
 on:
   push:
     branches:
-      - main
+      - master
 jobs:
   Build_Backend_and_Push_to_docker_hub:
     name: Push Backend Docker image to DockerHub
