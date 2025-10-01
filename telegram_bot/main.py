@@ -14,7 +14,9 @@ from windows.create import (choose_date_window, create_window,
                             description_window, finish_window,
                             select_category_window)
 from windows.main import main_window
-from windows.update import edit_list_window, edit_task_window
+from windows.update import (edit_list_window, edit_task_window,
+                            edit_description_window, edit_title_window,
+                            edit_date_window)
 from windows.view import tasks_window
 
 
@@ -25,7 +27,8 @@ async def main():
     dialog = Dialog(main_window, tasks_window, create_window,
                     description_window, select_category_window,
                     choose_date_window, finish_window, edit_list_window,
-                    edit_task_window)
+                    edit_task_window, edit_description_window,
+                    edit_title_window, edit_date_window)
 
     dp = Dispatcher(storage=storage)
     dp.include_router(dialog)

@@ -4,6 +4,7 @@ from typing import Any
 import aiohttp
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
+from aiogram_dialog.widgets.input import ManagedTextInput
 
 from config.settings import API_URL
 from handlers.view import fetch_task_by_id, fetch_tasks
@@ -71,61 +72,61 @@ async def edit_task_getter(*args, **kwargs):
     return {}
 
 
-async def enter_title_handler(
-        message: Message, widget: Any, manager: DialogManager):
-    """Обработчик редактирования названия."""
-    new_title = message.text.strip() if message.text else ""
+async def handle_edit_title(
+        message: Message, widget: ManagedTextInput[str],
+        manager: DialogManager, value: str):
+    """Обработчик редактирования названия задачи."""
     task_id = manager.current_context().dialog_data.get("task_id")
-    if task_id:
-        async with aiohttp.ClientSession() as session:
-            updated_task = await update_task(session, task_id,
-                                             title=new_title)
-            if updated_task:
-                await message.answer(
-                    f"Название задачи успешно изменено на '{new_title}'.")
-                await manager.switch_to(MainSG.edit_task)
-            else:
-                await message.answer(
-                    "Ошибка при изменении названия задачи.")
-    else:
+    if not task_id:
         await message.answer(
-            "Не удалось определить задачу для редактирования.")
+            "Ошибка: невозможно определить задачу для редактирования.")
+        return
+    async with aiohttp.ClientSession() as session:
+        success = await update_task(session, task_id, title=value)
+        if success:
+            await message.answer(
+                f"Название задачи успешно изменено на '{value}'.")
+        else:
+            await message.answer("Ошибка при изменении названия задачи.")
+    await manager.switch_to(MainSG.edit_task)
 
 
-async def enter_description_handler(
-        message: Message, widget: Any, manager: DialogManager):
-    """Обработчик редактирования описания."""
-    new_description = message.text.strip() if message.text else ""
+async def handle_edit_description(
+        message: Message, widget: ManagedTextInput[str],
+        manager: DialogManager, value: str):
+    """Обработчик редактирования описания задачи."""
     task_id = manager.current_context().dialog_data.get("task_id")
-    if task_id:
-        async with aiohttp.ClientSession() as session:
-            updated_task = await update_task(session, task_id,
-                                             description=new_description)
-            if updated_task:
-                await message.answer(
-                    f"Описание задачи успешно изменено:\n'{new_description}'")
-                await manager.switch_to(MainSG.edit_task)
-            else:
-                await message.answer("Ошибка при изменении описания задачи.")
-    else:
+    if not task_id:
         await message.answer(
-            "Не удалось определить задачу для редактирования.")
+            "Ошибка: невозможно определить задачу для редактирования.")
+        return
+    async with aiohttp.ClientSession() as session:
+        success = await update_task(session, task_id, description=value)
+        if success:
+            await message.answer(
+                f"Описание задачи успешно изменено на '{value}'.")
+        else:
+            await message.answer("Ошибка при изменении описания задачи.")
+    await manager.switch_to(MainSG.edit_task)
 
 
-async def choose_date_handler(callback_query: CallbackQuery,
-                              widget: Any, manager: DialogManager,
-                              selected_date: date):
-    """Обработчик редактирования даты."""
+async def handle_edit_date(
+        callback, widget, manager: DialogManager, selected_date: date):
+    """Обработчик редактирования даты задачи."""
+    task_id = manager.current_context().dialog_data.get("task_id")
+    if not task_id:
+        await callback.message.answer(
+            "Ошибка: невозможно определить задачу для редактирования.")
+        return
     formatted_due_date = selected_date.strftime("%Y-%m-%dT%H:%M:%S+00:00")
-    task_id = manager.current_context().dialog_data.get("task_id")
-    if task_id:
-        async with aiohttp.ClientSession() as session:
-            await update_task(session, task_id, due_date=formatted_due_date)
-            await callback_query.message.answer("Дата успешно обновлена.")
-            await manager.switch_to(MainSG.edit_list)
-    else:
-        await callback_query.answer(
-            "Не удалось определить задачу для редактирования.")
+    async with aiohttp.ClientSession() as session:
+        success = await update_task(session, task_id,
+                                    due_date=formatted_due_date)
+        if success:
+            await callback.message.answer("Дата задачи успешно изменена.")
+        else:
+            await callback.message.answer("Ошибка при изменении даты задачи.")
+    await manager.switch_to(MainSG.edit_task)
 
 
 async def delete_task_handler(callback_query: CallbackQuery, button: Any,

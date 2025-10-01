@@ -9,5 +9,8 @@ class MainSG(StatesGroup):
     select_category = State()          # Выбор категории
     choose_date = State()              # Выбор даты
     create = State()                   # Сохранение задачи
-    edit_list = State()            # Меню редактирования списка задач
-    edit_task = State()            # Меню редактирования конкретной задачи
+    edit_list = State()                # Меню редактирования списка задач
+    edit_task = State()                # Меню редактирования конкретной задачи
+    edit_title = State()               # Окно редактирования названия
+    edit_description = State()         # Окно редактирования описания
+    edit_date = State()                # Окно редактирования даты
