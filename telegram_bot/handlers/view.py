@@ -16,6 +16,17 @@ async def fetch_tasks(session, telegram_user_id=None):
         return await response.json()
 
 
+async def fetch_task_by_id(session, task_id):
+    """Получение название задачи по ее ID."""
+    async with session.get(f"{API_URL}/tasks/{task_id}") as response:
+        if response.status == 200:
+            task = await response.json()
+            task['due_date'] = datetime.fromisoformat(
+                task['due_date']).strftime('%H:%M %d.%m.%Y')
+            return task
+        return None
+
+
 async def get_data(dialog_manager: DialogManager, **kwargs):
     """Получение и форматирование списка задач для пользователя."""
     event = dialog_manager.event
@@ -47,12 +58,15 @@ async def format_tasks(tasks):
             categories_map.get(cat_id,
                                'Неизвестная категория'
                                ) for cat_id in task['category'])
+        notification_status = "Выполнено ✅" if task[
+            'notification_sent'] else "Ожидает выполнения ⏳"
         formatted_task = (
             f"\n{index}. 📌 {task['title']}\n"
             f"📝 Описание: {task['description']}\n"
             f"🔖 Категория: {category_names}\n"
             f"📅 Дата создания: {created_at}\n"
-            f"📆 Срок выполнения: {due_date}"
+            f"📆 Срок выполнения: {due_date}\n"
+            f"🗄️ Статус: {notification_status}"
         )
         formatted_tasks.append(formatted_task)
     return '\n'.join(formatted_tasks)

@@ -9,11 +9,12 @@ from redis.asyncio import Redis
 
 from config.settings import TELEGRAM_TOKEN
 from handlers.main import start_command
-from handlers.view import fetch_tasks
+from handlers.view import fetch_task_by_id
 from windows.create import (choose_date_window, create_window,
                             description_window, finish_window,
                             select_category_window)
 from windows.main import main_window
+from windows.update import edit_list_window, edit_task_window
 from windows.view import tasks_window
 
 
@@ -23,7 +24,8 @@ async def main():
     storage = MemoryStorage()
     dialog = Dialog(main_window, tasks_window, create_window,
                     description_window, select_category_window,
-                    choose_date_window, finish_window)
+                    choose_date_window, finish_window, edit_list_window,
+                    edit_task_window)
 
     dp = Dispatcher(storage=storage)
     dp.include_router(dialog)
@@ -48,24 +50,19 @@ async def main():
 
 async def process_redis_messages(bot: Bot, redis_client: Redis):
     """Напоминание о задаче."""
-    while True:
-        keys = await redis_client.keys(":1:reminder_*")
-        for key in keys:
-            raw_value = await redis_client.get(key)
-            parts = key.split("_")[2:]
-            task_id = parts[0]
-            user_id = int(raw_value.strip('"'))
-            async with aiohttp.ClientSession() as session:
-                tasks = await fetch_tasks(session)
-            task = next(
-                (item for item in tasks if item['id'] == task_id), None)
-            if task:
-                task_title = task.get('title', 'Без названия')
-                await bot.send_message(user_id,
-                                       f"Пора выполнить задачу: {task_title}")
-            await bot.send_message(user_id, "Не выполнено")
-            await redis_client.delete(key)
-        await asyncio.sleep(5)
+    async with aiohttp.ClientSession() as session:
+        while True:
+            keys = await redis_client.keys(":1:reminder_*")
+            for key in keys:
+                task_code = key[12:]
+                title = await fetch_task_by_id(session, task_code)
+                raw_value = await redis_client.get(key)
+                parts = raw_value.split(",", 1)
+                user_id = int(parts[0].strip())
+                msg = f"Пора выполнить задачу: '{title}'."
+                await bot.send_message(user_id, msg)
+                await redis_client.delete(key)
+            await asyncio.sleep(5)
 
 
 if __name__ == "__main__":
