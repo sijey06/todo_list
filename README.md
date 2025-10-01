@@ -136,7 +136,6 @@ docker compose exec backend python manage.py migrate
 7. После успешного запуска проверьте доступность бота через Telegram.
 Откройте чат с ботом и отправьте команду /start.
 ## Автор проекта:
-## Автор:
 ### Игорь Журавлев
 Ссылка на GitHub:
 https://github.com/sijey06
