@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 
 import aiohttp
@@ -7,7 +7,7 @@ from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input import ManagedTextInput
 
 from config.settings import API_URL
-from handlers.view import fetch_task_by_id, fetch_tasks
+from handlers.view import fetch_tasks
 from states.main import MainSG
 
 
@@ -58,6 +58,17 @@ async def get_edit_list_data(dialog_manager: DialogManager, **kwargs):
     return {"tasks": formatted_tasks}
 
 
+async def fetch_task_id_obj(session, task_id):
+    """Получение обьекта задачи по ее ID."""
+    async with session.get(f"{API_URL}/tasks/{task_id}") as response:
+        if response.status == 200:
+            task = await response.json()
+            task['due_date'] = datetime.fromisoformat(
+                task['due_date']).strftime('%H:%M %d.%m.%Y')
+            return task
+        return None
+
+
 async def edit_task_getter(*args, **kwargs):
     """Обработчик редактирования задачи."""
     dialog_manager = kwargs.pop('dialog_manager', None)
@@ -66,7 +77,7 @@ async def edit_task_getter(*args, **kwargs):
     task_id = dialog_manager.current_context().dialog_data.get("task_id")
     if task_id:
         async with aiohttp.ClientSession() as session:
-            task = await fetch_task_by_id(session, task_id)
+            task = await fetch_task_id_obj(session, task_id)
             if task:
                 return {"task": task}
     return {}

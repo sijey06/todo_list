@@ -21,9 +21,7 @@ async def fetch_task_by_id(session, task_id):
     async with session.get(f"{API_URL}/tasks/{task_id}") as response:
         if response.status == 200:
             task = await response.json()
-            task['due_date'] = datetime.fromisoformat(
-                task['due_date']).strftime('%H:%M %d.%m.%Y')
-            return task
+            return task['title']
         return None
 
 
