@@ -45,8 +45,6 @@ select_category_window = Window(
 choose_date_window = Window(
     Const("Выберите дату выполнения задачи:"),
     Calendar(id="task_deadline", on_click=handle_date_selection),
-    Row(Button(Const("Продолжить"), id="continue",
-               on_click=lambda c, b, m: m.switch_to(MainSG.create))),
     state=MainSG.choose_date
 )
 
